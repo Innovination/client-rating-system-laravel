@@ -8,6 +8,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\AgencyApprovedNotification;
 use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,5 +123,20 @@ class UsersController extends Controller
         User::whereIn('id', $ids)->delete();
 
         return back();
+    }
+
+    public function approveVerification(Request $request)
+    {
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $user = User::findOrFail($request->input('id'));
+        $user->update(['verification_status' => true]);
+        $user->notify(new AgencyApprovedNotification());
+
+        return back()->with('success', 'Agency profile approved successfully.');
     }
 }

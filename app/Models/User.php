@@ -41,13 +41,17 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'remember_token',
-        // 'user_type',
-        // 'verification_status',
-        // 'company_name',
-        // 'profile_picture',
+        'user_type',
+        'verification_status',
+        'company_name',
+        'profile_picture',
         'created_at',
         'updated_at',
         'deleted_at',
+    ];
+
+    protected $casts = [
+        'verification_status' => 'boolean',
     ];
 
     protected function serializeDate(DateTimeInterface $date)

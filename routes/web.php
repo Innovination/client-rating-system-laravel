@@ -5,25 +5,47 @@ use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\MaintenanceController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\PermissionsController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StateController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Agency\Auth\RegisterController as AgencyRegisterController;
+use App\Http\Controllers\Agency\HomeController as AgencyHomeController;
+use App\Http\Controllers\Agency\NotificationController as AgencyNotificationController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// 🔹 Public Landing
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+
+    return view('agency.landing');
+})->name('landing');
+
 // 🔹 Redirect Home
-Route::redirect('/', '/login');
 Route::get('/home', function () {
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $isAdmin = auth()->user()->is_admin || auth()->user()->user_type === 'admin';
+    $targetRoute = $isAdmin ? 'admin.home' : 'agency.home';
+
     return session('status')
-        ? redirect()->route('admin.home')->with('status', session('status'))
-        : redirect()->route('admin.home');
+        ? redirect()->route($targetRoute)->with('status', session('status'))
+        : redirect()->route($targetRoute);
 });
 
 // 🔹 Authentication Routes
 Auth::routes(['register' => false]);
+
+Route::get('/agency/register', [AgencyRegisterController::class, 'showRegistrationForm'])->name('agency.register');
+Route::post('/agency/register', [AgencyRegisterController::class, 'register'])->name('agency.register.store');
 
 // 🔹 Maintenance Routes
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
@@ -35,6 +57,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 // 🔹 Admin Panel Routes
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/mark-all-as-read', [AdminNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
     Route::post('/maintenance/migrate', [MaintenanceController::class, 'migrate'])->name('maintenance.migrate');
     Route::post('/maintenance/cache-refresh', [MaintenanceController::class, 'cacheRefresh'])->name('maintenance.cacheRefresh');
     Route::post('/maintenance/optimize', [MaintenanceController::class, 'optimize'])->name('maintenance.optimize');
@@ -98,4 +122,10 @@ Route::prefix('profile')->name('profile.')->middleware('auth')->group(function (
         Route::post('profile', [ChangePasswordController::class, 'updateProfile'])->name('password.updateProfile');
         Route::post('profile/destroy', [ChangePasswordController::class, 'destroy'])->name('password.destroyProfile');
     }
+});
+
+Route::prefix('agency')->name('agency.')->middleware('auth')->group(function () {
+    Route::get('/', [AgencyHomeController::class, 'index'])->name('home');
+    Route::get('notifications', [AgencyNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/mark-all-as-read', [AgencyNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });

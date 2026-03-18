@@ -1,0 +1,106 @@
+name: Deploy Laravel
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: Run database migrations
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Validate DEPLOY_TARGETS_JSON variable
+        id: set-matrix
+        env:
+          DEPLOY_TARGETS_JSON: ${{ vars.DEPLOY_TARGETS_JSON }}
+        run: |
+          if [ -z "${DEPLOY_TARGETS_JSON}" ]; then
+            echo "DEPLOY_TARGETS_JSON repo variable is required." >&2
+            echo "Example: [{\"name\":\"prod-1\",\"host\":\"1.2.3.4\",\"port\":22,\"user\":\"deploy\",\"path\":\"/var/www/client-rating-system-laravel\"}]" >&2
+            exit 1
+          fi
+
+          echo "${DEPLOY_TARGETS_JSON}" | jq -e . >/dev/null
+          echo "matrix=${DEPLOY_TARGETS_JSON}" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ matrix.target.port || 22 }}" "${{ matrix.target.host }}" >> ~/.ssh/known_hosts
+
+      - name: Sync project files
+        env:
+          DEPLOY_USER: ${{ matrix.target.user }}
+          DEPLOY_HOST: ${{ matrix.target.host }}
+          DEPLOY_PORT: ${{ matrix.target.port || 22 }}
+          DEPLOY_PATH: ${{ matrix.target.path }}
+        run: |
+          rsync -az \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            --exclude "vendor" \
+            --exclude "storage/logs/*" \
+            --exclude "storage/framework/cache/*" \
+            --exclude "storage/framework/sessions/*" \
+            --exclude "storage/framework/views/*" \
+            -e "ssh -p ${DEPLOY_PORT}" \
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+
+      - name: Run remote deployment commands
+        env:
+          DEPLOY_USER: ${{ matrix.target.user }}
+          DEPLOY_HOST: ${{ matrix.target.host }}
+          DEPLOY_PORT: ${{ matrix.target.port || 22 }}
+          DEPLOY_PATH: ${{ matrix.target.path }}
+          RUN_MIGRATIONS: ${{ github.event_name == 'workflow_dispatch' && inputs.run_migrations || 'true' }}
+        run: |
+          ssh -p "${DEPLOY_PORT}" "${DEPLOY_USER}@${DEPLOY_HOST}" "set -e; \
+            cd \"${DEPLOY_PATH}\"; \
+            composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader; \
+            if [ \"${RUN_MIGRATIONS}\" = \"true\" ]; then php artisan migrate --force; fi; \
+            php artisan config:clear; \
+            php artisan route:clear; \
+            php artisan view:clear; \
+            php artisan config:cache; \
+            php artisan route:cache; \
+            php artisan view:cache; \
+            php artisan storage:link || true"
+
+      - name: Summary
+        run: |
+          echo "Deployed to ${{ matrix.target.name || matrix.target.host }}"

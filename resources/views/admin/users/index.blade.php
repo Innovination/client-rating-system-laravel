@@ -99,6 +99,14 @@
                                     <span class="badge badge-info">{{ $role->title }}</span>
                                 @endforeach
                             </div>
+                            <div>
+                                <strong>{{ trans('cruds.user.fields.verification_status') }}:</strong>
+                                @if($user->verification_status)
+                                    <span class="badge badge-success">Approved</span>
+                                @else
+                                    <span class="badge badge-warning">Pending</span>
+                                @endif
+                            </div>
                             <div class="mt-2">
                                 @include('partials.datatablesActions', [
                                     'viewGate' => 'user_show',
@@ -107,6 +115,13 @@
                                     'crudRoutePart' => 'users',
                                     'row' => $user,
                                 ])
+                                @if(!$user->verification_status && $user->user_type === 'agency')
+                                    <form method="POST" action="{{ route('admin.users.approveVerification') }}" class="d-inline-block mt-2">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $user->id }}">
+                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                    </form>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -127,6 +142,7 @@
                             <th>{{ trans('cruds.user.fields.name') }}</th>
                             <th>{{ trans('cruds.user.fields.email') }}</th>
                             <th>{{ trans('cruds.user.fields.mobile') }}</th>
+                            <th>{{ trans('cruds.user.fields.verification_status') }}</th>
                             <th>{{ trans('cruds.user.fields.roles') }}</th>
                         </tr>
                     </thead>
@@ -152,6 +168,20 @@
                                 <td>{{ $user->email ?? '' }}</td>
                                 <td>{{ $user->mobile ?? '' }}</td>
                                 <td>
+                                    @if($user->verification_status)
+                                        <span class="badge badge-success">Approved</span>
+                                    @else
+                                        <span class="badge badge-warning">Pending</span>
+                                    @endif
+                                    @if(!$user->verification_status && $user->user_type === 'agency')
+                                        <form method="POST" action="{{ route('admin.users.approveVerification') }}" class="mt-2">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $user->id }}">
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                    @endif
+                                </td>
+                                <td>
                                     @foreach($user->roles as $role)
                                         <span class="badge badge-info">{{ $role->title }}</span>
                                     @endforeach
@@ -160,9 +190,9 @@
                         @empty
                             <tr>
                                 @can('user_delete')
-                                    <td colspan="7">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="8">{{ trans('global.no_entries_in_table') }}</td>
                                 @else
-                                    <td colspan="6">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="7">{{ trans('global.no_entries_in_table') }}</td>
                                 @endcan
                             </tr>
                         @endforelse

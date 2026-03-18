@@ -17,7 +17,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
     <link href="https://unpkg.com/@coreui/coreui@3.2/dist/css/coreui.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/css/perfect-scrollbar.min.css" rel="stylesheet" />
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet" />
@@ -25,7 +24,7 @@
 </head>
 
 <body class="c-app app-modern">
-    @include('partials.menu')
+    @include('partials.agency-menu')
     <div class="c-wrapper">
         <header class="c-header c-header-fixed px-3">
             <button class="c-header-toggler c-class-toggler d-lg-none mfe-auto" type="button" data-target="#sidebar" data-class="c-sidebar-show">
@@ -59,14 +58,14 @@
                             <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
                                 <strong>Notifications</strong>
                                 @if($unreadNotificationsCount > 0)
-                                    <form method="POST" action="{{ route('admin.notifications.markAllAsRead') }}">
+                                    <form method="POST" action="{{ route('agency.notifications.markAllAsRead') }}">
                                         @csrf
                                         <button type="submit" class="btn btn-link btn-sm p-0">Mark all as read</button>
                                     </form>
                                 @endif
                             </div>
                             @forelse($recentNotifications as $notification)
-                                <a class="dropdown-item small {{ is_null($notification->read_at) ? 'font-weight-bold' : '' }}" href="{{ $notification->data['url'] ?? route('admin.notifications.index') }}">
+                                <a class="dropdown-item small {{ is_null($notification->read_at) ? 'font-weight-bold' : '' }}" href="{{ $notification->data['url'] ?? route('agency.notifications.index') }}">
                                     <div>{{ $notification->data['title'] ?? 'Notification' }}</div>
                                     <div class="text-muted">{{ $notification->data['message'] ?? '' }}</div>
                                 </a>
@@ -74,22 +73,10 @@
                                 <div class="dropdown-item text-muted">No notifications yet.</div>
                             @endforelse
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-center" href="{{ route('admin.notifications.index') }}">View all notifications</a>
+                            <a class="dropdown-item text-center" href="{{ route('agency.notifications.index') }}">View all notifications</a>
                         </div>
                     </li>
                 @endauth
-                @if(count(config('panel.available_languages', [])) > 1)
-                    <li class="c-header-nav-item dropdown d-md-down-none">
-                        <a class="c-header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                            {{ strtoupper(app()->getLocale()) }}
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            @foreach(config('panel.available_languages') as $langLocale => $langName)
-                                <a class="dropdown-item" href="{{ url()->current() }}?change_language={{ $langLocale }}">{{ strtoupper($langLocale) }} ({{ $langName }})</a>
-                            @endforeach
-                        </div>
-                    </li>
-                @endif
                 @auth
                     <li class="c-header-nav-item dropdown">
                         <a class="c-header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
@@ -117,8 +104,6 @@
 
         <div class="c-body">
             <main class="c-main">
-
-
                 <div class="container-fluid">
                     @if(session('message'))
                         <div class="row mb-2">
@@ -139,10 +124,7 @@
                     <div class="content-stack">
                         @yield('content')
                     </div>
-
                 </div>
-
-
             </main>
             <form id="logoutform" action="{{ route('logout') }}" method="POST" style="display: none;">
                 {{ csrf_field() }}
@@ -154,7 +136,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
     <script src="https://unpkg.com/@coreui/coreui@3.2/dist/js/coreui.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/16.0.0/classic/ckeditor.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
