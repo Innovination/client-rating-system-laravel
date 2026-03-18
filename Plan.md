@@ -224,13 +224,94 @@ Acceptance:
 - Basic moderation SOP documented
 - Backup and rollback plan defined
 
-## Phase 2 Backlog (Post-MVP)
-- Evidence attachments with secure storage
-- Client verification badges
-- Dispute resolution workflow/status tracking
-- Notification system (email/in-app)
-- Reputation scoring model and fraud signals
-- API endpoints for integrations
+## 4. Advanced Features (Future Scope / Phase 2+)
+
+### 4.1 Agency Verification System
+- Verified badges for trusted agencies.
+- Manual and/or document-backed verification workflow.
+- Verification state tracked in agency profile and surfaced in public views.
+
+### 4.2 Dispute Evidence Upload
+- Secure evidence uploads (contracts, invoices, screenshots).
+- File type/size validation and malware scanning integration point.
+- Access control for sensitive evidence (role and policy guarded).
+
+### 4.3 Client Identity Disambiguation
+- Duplicate detection heuristics for similar client names/identifiers.
+- Admin-supported merge flow for duplicate client profiles.
+- Audit trail for merge actions.
+
+### 4.4 Reputation Scoring Algorithm
+- Weighted score model combining:
+  - Number of reviews
+  - Credibility/verification level of reporting agencies
+  - Recency of feedback/disputes
+- Keep raw average rating visible alongside weighted score for transparency.
+
+### 4.5 Dispute Resolution Workflow
+- Allow agency and client-side response threads per dispute.
+- Status lifecycle support: `open`, `resolved`, `disputed`.
+- Timeline view for dispute progression.
+
+### 4.6 Privacy & Visibility Controls
+- Optional agency anonymization for public dispute entries.
+- Visibility tiers for sensitive reports (public/agency-only/admin-only).
+- Policy-driven masking of contact details based on visibility.
+
+### 4.7 Notifications System
+- Trigger alerts for:
+  - New reviews on followed clients
+  - Responses to disputes
+  - Platform updates/moderation outcomes
+- Deliver via email first; in-app notifications can follow.
+
+### 4.8 API Access
+- Authenticated API for third-party integrations.
+- Scoped tokens/permissions for agency tools integration.
+- Rate limiting, API audit logs, and versioned endpoints.
+
+### 4.9 Mobile Application
+- Cross-platform mobile app (e.g., React Native or Flutter).
+- Core flows: search client, post dispute, post feedback, receive alerts.
+- Role-based access parity with web features.
+
+### 4.10 Community Features
+- Agency discussion threads/forums.
+- Upvote/downvote feedback usefulness.
+- Commenting on reports with moderation controls.
+
+## 5. Roles & Responsibilities
+
+### Platform Owner
+- Define platform policies and moderation rules.
+- Manage admin operations and moderation quality.
+- Ensure legal, compliance, and ethical governance.
+
+### Agencies (Users)
+- Submit accurate and truthful dispute/feedback data.
+- Use the platform responsibly and follow policy.
+- Engage constructively with other agencies/community.
+
+## 6. Key Workflows
+
+### 6.1 Posting a Dispute
+1. Agency logs in.
+2. Agency searches for an existing client or adds a new client.
+3. Agency submits dispute details.
+4. System publishes entry (subject to moderation policy/configuration).
+
+### 6.2 Checking a Client
+1. Agency searches by client name.
+2. Agency reviews rating, disputes, and feedback.
+3. Agency contacts the reporting agency if needed.
+
+## 7. Acceptance Criteria
+- Agencies can register and log in successfully.
+- Users can add and search clients.
+- Disputes and feedback can be submitted and displayed.
+- Ratings are calculated and visible.
+- Admin can moderate content effectively.
+- Platform maintains basic performance and usability standards.
 
 ## Definition of Done (Phase 1)
 - All in-scope modules implemented with named routes, authorization, validation, and pagination.
