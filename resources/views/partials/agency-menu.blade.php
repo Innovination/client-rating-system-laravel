@@ -15,6 +15,20 @@
         </li>
 
         <li class="c-sidebar-nav-item">
+            <a href="{{ route('agency.profile.edit') }}" class="c-sidebar-nav-link {{ request()->is('agency/profile') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-building c-sidebar-nav-icon"></i>
+                Agency Profile
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('agency.clients.index') }}" class="c-sidebar-nav-link {{ request()->is('agency/clients*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-address-book c-sidebar-nav-icon"></i>
+                Clients
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
             <a href="{{ route('agency.notifications.index') }}" class="c-sidebar-nav-link {{ request()->is('agency/notifications*') ? 'c-active' : '' }}">
                 <i class="fa-fw fas fa-bell c-sidebar-nav-icon"></i>
                 Notifications
