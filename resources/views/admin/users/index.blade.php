@@ -107,6 +107,14 @@
                                     <span class="badge badge-warning">Pending</span>
                                 @endif
                             </div>
+                            <div class="mt-1">
+                                <strong>Status:</strong>
+                                @if(($user->status ?? 'active') === 'suspended')
+                                    <span class="badge badge-danger">Suspended</span>
+                                @else
+                                    <span class="badge badge-success">Active</span>
+                                @endif
+                            </div>
                             <div class="mt-2">
                                 @include('partials.datatablesActions', [
                                     'viewGate' => 'user_show',
@@ -120,6 +128,17 @@
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $user->id }}">
                                         <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                    </form>
+                                @endif
+                                @if(($user->status ?? 'active') === 'suspended')
+                                    <form method="POST" action="{{ route('admin.users.unsuspend', $user) }}" class="d-inline-block mt-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success">Unsuspend</button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('admin.users.suspend', $user) }}" class="d-inline-block mt-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
                                     </form>
                                 @endif
                             </div>
@@ -143,6 +162,7 @@
                             <th>{{ trans('cruds.user.fields.email') }}</th>
                             <th>{{ trans('cruds.user.fields.mobile') }}</th>
                             <th>{{ trans('cruds.user.fields.verification_status') }}</th>
+                            <th>Status</th>
                             <th>{{ trans('cruds.user.fields.roles') }}</th>
                         </tr>
                     </thead>
@@ -182,6 +202,21 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if(($user->status ?? 'active') === 'suspended')
+                                        <span class="badge badge-danger">Suspended</span>
+                                        <form method="POST" action="{{ route('admin.users.unsuspend', $user) }}" class="mt-2">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success">Unsuspend</button>
+                                        </form>
+                                    @else
+                                        <span class="badge badge-success">Active</span>
+                                        <form method="POST" action="{{ route('admin.users.suspend', $user) }}" class="mt-2">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                                        </form>
+                                    @endif
+                                </td>
+                                <td>
                                     @foreach($user->roles as $role)
                                         <span class="badge badge-info">{{ $role->title }}</span>
                                     @endforeach
@@ -190,9 +225,9 @@
                         @empty
                             <tr>
                                 @can('user_delete')
-                                    <td colspan="8">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="9">{{ trans('global.no_entries_in_table') }}</td>
                                 @else
-                                    <td colspan="7">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="8">{{ trans('global.no_entries_in_table') }}</td>
                                 @endcan
                             </tr>
                         @endforelse

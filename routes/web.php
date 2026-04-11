@@ -5,16 +5,23 @@ use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\MaintenanceController;
+use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\PermissionsController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StateController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\DisputeCategoriesController;
 use App\Http\Controllers\Agency\Auth\RegisterController as AgencyRegisterController;
+use App\Http\Controllers\Agency\ClientController as AgencyClientController;
+use App\Http\Controllers\Agency\DisputeController as AgencyDisputeController;
+use App\Http\Controllers\Agency\FeedbackController as AgencyFeedbackController;
 use App\Http\Controllers\Agency\HomeController as AgencyHomeController;
 use App\Http\Controllers\Agency\NotificationController as AgencyNotificationController;
+use App\Http\Controllers\Agency\ProfileController as AgencyProfileController;
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\PublicClientController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -46,9 +53,11 @@ Auth::routes(['register' => false]);
 
 Route::get('/agency/register', [AgencyRegisterController::class, 'showRegistrationForm'])->name('agency.register');
 Route::post('/agency/register', [AgencyRegisterController::class, 'register'])->name('agency.register.store');
+Route::get('/clients', [PublicClientController::class, 'index'])->name('clients.index');
+Route::get('/clients/{client}', [PublicClientController::class, 'show'])->name('clients.show');
 
 // 🔹 Maintenance Routes
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     // Route::get('/run-migrate', [MaintainanceController::class, 'runMigrate'])->name('run.migrate');
     // Route::get('/cache-clear', [MaintainanceController::class, 'cacheClear'])->name('cache.clear');
     // Route::get('/composer-install', [MaintainanceController::class, 'composerInstall'])->name('composer.install');
@@ -75,6 +84,21 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::delete('users/destroy', [UsersController::class, 'massDestroy'])->name('users.massDestroy');
     Route::resource('users', UsersController::class);
     Route::post('users/approve-verification', [UsersController::class, 'approveVerification'])->name('users.approveVerification');
+    Route::post('users/{user}/suspend', [UsersController::class, 'suspend'])->name('users.suspend');
+    Route::post('users/{user}/unsuspend', [UsersController::class, 'unsuspend'])->name('users.unsuspend');
+
+    Route::get('moderation', [ModerationController::class, 'index'])->name('moderation.index');
+    Route::post('moderation/disputes/{dispute}/hide', [ModerationController::class, 'hideDispute'])->name('moderation.disputes.hide');
+    Route::post('moderation/disputes/{dispute}/restore', [ModerationController::class, 'restoreDispute'])->name('moderation.disputes.restore');
+    Route::delete('moderation/disputes/{dispute}', [ModerationController::class, 'deleteDispute'])->name('moderation.disputes.delete');
+    Route::post('moderation/feedback/{feedback}/hide', [ModerationController::class, 'hideFeedback'])->name('moderation.feedback.hide');
+    Route::post('moderation/feedback/{feedback}/restore', [ModerationController::class, 'restoreFeedback'])->name('moderation.feedback.restore');
+    Route::delete('moderation/feedback/{feedback}', [ModerationController::class, 'deleteFeedback'])->name('moderation.feedback.delete');
+
+    Route::get('dispute-categories', [DisputeCategoriesController::class, 'index'])->name('dispute-categories.index');
+    Route::post('dispute-categories', [DisputeCategoriesController::class, 'store'])->name('dispute-categories.store');
+    Route::put('dispute-categories/{category}', [DisputeCategoriesController::class, 'update'])->name('dispute-categories.update');
+    Route::delete('dispute-categories/{category}', [DisputeCategoriesController::class, 'destroy'])->name('dispute-categories.destroy');
 
     //  Audit Logs (Read-Only)
     Route::resource('audit-logs', AuditLogsController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
@@ -124,8 +148,16 @@ Route::prefix('profile')->name('profile.')->middleware('auth')->group(function (
     }
 });
 
-Route::prefix('agency')->name('agency.')->middleware('auth')->group(function () {
+Route::prefix('agency')->name('agency.')->middleware(['auth', 'agency'])->group(function () {
     Route::get('/', [AgencyHomeController::class, 'index'])->name('home');
+    Route::get('profile', [AgencyProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [AgencyProfileController::class, 'update'])->name('profile.update');
+    Route::get('clients', [AgencyClientController::class, 'index'])->name('clients.index');
+    Route::get('clients/create', [AgencyClientController::class, 'create'])->name('clients.create');
+    Route::post('clients', [AgencyClientController::class, 'store'])->name('clients.store');
+    Route::get('clients/{client}', [AgencyClientController::class, 'show'])->name('clients.show');
+    Route::post('disputes', [AgencyDisputeController::class, 'store'])->name('disputes.store');
+    Route::post('feedback', [AgencyFeedbackController::class, 'store'])->name('feedback.store');
     Route::get('notifications', [AgencyNotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/mark-all-as-read', [AgencyNotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });

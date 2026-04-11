@@ -139,4 +139,22 @@ class UsersController extends Controller
 
         return back()->with('success', 'Agency profile approved successfully.');
     }
+
+    public function suspend(User $user)
+    {
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $user->update(['status' => 'suspended']);
+
+        return back()->with('success', 'User suspended successfully.');
+    }
+
+    public function unsuspend(User $user)
+    {
+        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $user->update(['status' => 'active']);
+
+        return back()->with('success', 'User unsuspended successfully.');
+    }
 }

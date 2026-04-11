@@ -42,6 +42,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'user_type',
+        'role',
+        'status',
         'verification_status',
         'company_name',
         'profile_picture',
@@ -111,7 +113,12 @@ class User extends Authenticatable
 
     public function clients()
     {
-        return $this->hasMany(Client::class, 'user_id');
+        return $this->hasMany(Client::class, 'created_by');
+    }
+
+    public function agencyProfile()
+    {
+        return $this->hasOne(AgencyProfile::class, 'user_id');
     }
 
     public function hasRole($role)

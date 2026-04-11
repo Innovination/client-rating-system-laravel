@@ -44,6 +44,14 @@ class LoginController extends Controller
     {
         $isAdminUser = $user->is_admin || $user->user_type === 'admin';
 
+        if (($user->status ?? 'active') === 'suspended') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with('message', 'Your account is suspended. Please contact the administrator.');
+        }
+
         if (!$user->verification_status && !$isAdminUser) {
             Auth::logout();
             $request->session()->invalidate();

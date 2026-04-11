@@ -110,6 +110,20 @@
             </li>
         @endcan
 
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.moderation.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/moderation*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-shield-alt c-sidebar-nav-icon"></i>
+                Moderation
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.dispute-categories.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/dispute-categories*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-tags c-sidebar-nav-icon"></i>
+                Dispute Categories
+            </a>
+        </li>
+
         @can('profile_password_edit')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('profile.password.edit') }}" class="c-sidebar-nav-link {{ request()->is('profile/password*') ? 'c-active' : '' }}">
