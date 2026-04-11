@@ -31,6 +31,14 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-md-3 mb-2">
+                            <select class="form-control" name="status">
+                                <option value="">{{ trans('global.all') }} Status</option>
+                                @foreach($userStatuses as $status)
+                                    <option value="{{ $status }}" @selected($status === request('status'))>{{ ucfirst($status) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="filter-panel">
@@ -107,6 +115,12 @@
                                     <span class="badge badge-warning">Pending</span>
                                 @endif
                             </div>
+                            <div>
+                                <strong>Status:</strong>
+                                <span class="badge {{ $user->status === 'suspended' ? 'badge-danger' : 'badge-success' }}">
+                                    {{ ucfirst($user->status ?? 'active') }}
+                                </span>
+                            </div>
                             <div class="mt-2">
                                 @include('partials.datatablesActions', [
                                     'viewGate' => 'user_show',
@@ -115,6 +129,17 @@
                                     'crudRoutePart' => 'users',
                                     'row' => $user,
                                 ])
+                                @if($user->status === 'suspended')
+                                    <form method="POST" action="{{ route('admin.users.unsuspend', $user) }}" class="d-inline-block mt-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success">Unsuspend</button>
+                                    </form>
+                                @elseif(auth()->id() !== $user->id)
+                                    <form method="POST" action="{{ route('admin.users.suspend', $user) }}" class="d-inline-block mt-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                                    </form>
+                                @endif
                                 @if(!$user->verification_status && $user->user_type === 'agency')
                                     <form method="POST" action="{{ route('admin.users.approveVerification') }}" class="d-inline-block mt-2">
                                         @csrf
@@ -142,6 +167,7 @@
                             <th>{{ trans('cruds.user.fields.name') }}</th>
                             <th>{{ trans('cruds.user.fields.email') }}</th>
                             <th>{{ trans('cruds.user.fields.mobile') }}</th>
+                            <th>Status</th>
                             <th>{{ trans('cruds.user.fields.verification_status') }}</th>
                             <th>{{ trans('cruds.user.fields.roles') }}</th>
                         </tr>
@@ -168,6 +194,24 @@
                                 <td>{{ $user->email ?? '' }}</td>
                                 <td>{{ $user->mobile ?? '' }}</td>
                                 <td>
+                                    <span class="badge {{ $user->status === 'suspended' ? 'badge-danger' : 'badge-success' }}">
+                                        {{ ucfirst($user->status ?? 'active') }}
+                                    </span>
+                                    <div class="mt-2">
+                                        @if($user->status === 'suspended')
+                                            <form method="POST" action="{{ route('admin.users.unsuspend', $user) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success">Unsuspend</button>
+                                            </form>
+                                        @elseif(auth()->id() !== $user->id)
+                                            <form method="POST" action="{{ route('admin.users.suspend', $user) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>
                                     @if($user->verification_status)
                                         <span class="badge badge-success">Approved</span>
                                     @else
@@ -190,9 +234,9 @@
                         @empty
                             <tr>
                                 @can('user_delete')
-                                    <td colspan="8">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="9">{{ trans('global.no_entries_in_table') }}</td>
                                 @else
-                                    <td colspan="7">{{ trans('global.no_entries_in_table') }}</td>
+                                    <td colspan="8">{{ trans('global.no_entries_in_table') }}</td>
                                 @endcan
                             </tr>
                         @endforelse

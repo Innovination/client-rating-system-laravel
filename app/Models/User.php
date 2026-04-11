@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
-use Carbon\Carbon;
+use DateTimeInterface;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,24 +12,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
-use DateTimeInterface;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use SoftDeletes, Notifiable, Auditable, HasFactory, HasApiTokens;
+
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_AGENCY = 'agency';
+
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_SUSPENDED = 'suspended';
 
     public $table = 'users';
 
     protected $hidden = [
         'remember_token',
         'password',
-        'updated_at',
-        'deleted_at',
-    ];
-
-    protected $dates = [
-        'email_verified_at',
-        'created_at',
         'updated_at',
         'deleted_at',
     ];
@@ -42,6 +40,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'user_type',
+        'role',
+        'status',
         'verification_status',
         'company_name',
         'profile_picture',
@@ -51,6 +51,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'email_verified_at' => 'datetime',
         'verification_status' => 'boolean',
     ];
 
@@ -61,23 +62,21 @@ class User extends Authenticatable
 
     public function getIsAdminAttribute()
     {
-        return $this->roles()->where('id', 1)->exists();
+        return $this->role === self::ROLE_ADMIN
+            || $this->user_type === self::ROLE_ADMIN
+            || $this->roles()->where('id', 1)->exists()
+            || $this->roles()->whereIn('title', ['Admin', 'admin'])->exists();
+    }
+
+    public function getIsSuspendedAttribute(): bool
+    {
+        return $this->status === self::STATUS_SUSPENDED;
     }
 
     public static function boot()
     {
         parent::boot();
         self::observe(new \App\Observers\UserActionObserver);
-    }
-
-    public function getEmailVerifiedAtAttribute($value)
-    {
-        return $value ? Carbon::createFromFormat('Y-m-d H:i:s', $value)->format(config('panel.date_format') . ' ' . config('panel.time_format')) : null;
-    }
-
-    public function setEmailVerifiedAtAttribute($value)
-    {
-        $this->attributes['email_verified_at'] = $value ? Carbon::createFromFormat(config('panel.date_format') . ' ' . config('panel.time_format'), $value)->format('Y-m-d H:i:s') : null;
     }
 
     public function setPasswordAttribute($input)
@@ -111,7 +110,22 @@ class User extends Authenticatable
 
     public function clients()
     {
-        return $this->hasMany(Client::class, 'user_id');
+        return $this->hasMany(Client::class, 'created_by');
+    }
+
+    public function agencyProfile()
+    {
+        return $this->hasOne(AgencyProfile::class);
+    }
+
+    public function reportedDisputes()
+    {
+        return $this->hasMany(Dispute::class, 'agency_user_id');
+    }
+
+    public function submittedFeedback()
+    {
+        return $this->hasMany(ClientFeedback::class, 'agency_user_id');
     }
 
     public function hasRole($role)

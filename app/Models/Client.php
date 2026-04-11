@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -23,6 +24,7 @@ class Client extends Model
         'name',
         'website',
         'location',
+        'notes',
         'created_by',
     ];
 
@@ -36,14 +38,23 @@ class Client extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function disputes()
+    public function disputes(): HasMany
     {
         return $this->hasMany(Dispute::class);
     }
 
-    public function feedback()
+    public function feedback(): HasMany
     {
         return $this->hasMany(ClientFeedback::class, 'client_id');
     }
-}
 
+    public function visibleDisputes(): HasMany
+    {
+        return $this->disputes()->where('status', Dispute::STATUS_VISIBLE);
+    }
+
+    public function visibleFeedback(): HasMany
+    {
+        return $this->feedback()->where('status', ClientFeedback::STATUS_VISIBLE);
+    }
+}

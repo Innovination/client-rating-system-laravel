@@ -68,6 +68,33 @@
                 @endif
             </div>
 
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="role">Role</label>
+                    <select class="form-control {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role" id="role">
+                        <option value="agency" @selected(old('role', 'agency') === 'agency')>Agency</option>
+                        <option value="admin" @selected(old('role') === 'admin')>Admin</option>
+                    </select>
+                    @if($errors->has('role'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('role') }}
+                        </div>
+                    @endif
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="status">Status</label>
+                    <select class="form-control {{ $errors->has('status') ? 'is-invalid' : '' }}" name="status" id="status">
+                        <option value="active" @selected(old('status', 'active') === 'active')>Active</option>
+                        <option value="suspended" @selected(old('status') === 'suspended')>Suspended</option>
+                    </select>
+                    @if($errors->has('status'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('status') }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="form-group">
                 <button class="btn btn-danger" type="submit">
                     {{ trans('global.save') }}

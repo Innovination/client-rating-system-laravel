@@ -208,16 +208,16 @@
 
             <ul class="reg-points">
                 <li><span class="reg-no">1</span> Submit your basic agency profile</li>
-                <li><span class="reg-no">2</span> Wait for admin approval</li>
-                <li><span class="reg-no">3</span> Access full portal features after approval</li>
+                <li><span class="reg-no">2</span> Verify your email address</li>
+                <li><span class="reg-no">3</span> Access full portal features after verification</li>
             </ul>
         </aside>
 
         <div class="reg-form">
             <h3 class="reg-title">Register as Agency</h3>
-            <p class="reg-sub">Only approved agency owners can access the portal.</p>
+            <p class="reg-sub">Verify your email after signup to unlock reporting and rating actions.</p>
 
-            <div class="reg-note">{{ trans('global.yourAccountNeedsAdminApproval') }}</div>
+            <div class="reg-note">Email verification is required before you can submit disputes or ratings.</div>
 
             <form method="POST" action="{{ route('agency.register.store') }}">
                 @csrf
@@ -236,15 +236,21 @@
                     </div>
                     <div class="reg-field">
                         <label class="reg-label" for="mobile">Mobile</label>
-                        <input id="mobile" type="text" class="reg-input" name="mobile" value="{{ old('mobile') }}" autocomplete="mobile">
+                        <input id="mobile" type="text" class="reg-input" name="mobile" value="{{ old('mobile') }}" autocomplete="mobile" required>
                         @error('mobile')<div class="err">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
                 <div class="reg-field">
                     <label class="reg-label" for="company_name">Company Name</label>
-                    <input id="company_name" type="text" class="reg-input" name="company_name" value="{{ old('company_name') }}" autocomplete="organization">
+                    <input id="company_name" type="text" class="reg-input" name="company_name" value="{{ old('company_name') }}" autocomplete="organization" required>
                     @error('company_name')<div class="err">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="reg-field">
+                    <label class="reg-label" for="website">Website (Optional)</label>
+                    <input id="website" type="url" class="reg-input" name="website" value="{{ old('website') }}" autocomplete="url">
+                    @error('website')<div class="err">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="reg-row">

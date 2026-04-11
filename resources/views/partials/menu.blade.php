@@ -101,6 +101,20 @@
             </li>
         @endcan
 
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.moderation.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/moderation*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-shield-alt c-sidebar-nav-icon"></i>
+                Moderation Queue
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.dispute-categories.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/dispute-categories*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-tags c-sidebar-nav-icon"></i>
+                Dispute Categories
+            </a>
+        </li>
+
         @can('setting_access')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('admin.settings.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/settings*') ? 'c-active' : '' }}">

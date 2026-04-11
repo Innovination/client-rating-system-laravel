@@ -21,6 +21,27 @@
             </a>
         </li>
 
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('agency.profile.show') }}" class="c-sidebar-nav-link {{ request()->is('agency/profile*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-building c-sidebar-nav-icon"></i>
+                Agency Profile
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('agency.clients.index') }}" class="c-sidebar-nav-link {{ request()->is('agency/clients*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-users c-sidebar-nav-icon"></i>
+                Clients
+            </a>
+        </li>
+
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('clients.index') }}" class="c-sidebar-nav-link {{ request()->is('clients*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-search c-sidebar-nav-icon"></i>
+                Public Client Directory
+            </a>
+        </li>
+
         @can('profile_password_edit')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('profile.password.edit') }}" class="c-sidebar-nav-link {{ request()->is('profile/password*') ? 'c-active' : '' }}">
