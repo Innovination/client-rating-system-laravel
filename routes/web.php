@@ -80,10 +80,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active', 'can:admin
     Route::resource('roles', RolesController::class);
 
     Route::delete('users/destroy', [UsersController::class, 'massDestroy'])->name('users.massDestroy');
+    Route::post('users/approve-verification', [UsersController::class, 'approveVerification'])->name('users.approveVerification');
     Route::post('users/{user}/suspend', [UsersController::class, 'suspend'])->name('users.suspend');
     Route::post('users/{user}/unsuspend', [UsersController::class, 'unsuspend'])->name('users.unsuspend');
     Route::resource('users', UsersController::class);
-    Route::post('users/approve-verification', [UsersController::class, 'approveVerification'])->name('users.approveVerification');
 
     Route::resource('audit-logs', AuditLogsController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
 

@@ -115,7 +115,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function agencyProfile()
     {
-        return $this->hasOne(AgencyProfile::class);
+        return $this->hasOne(AgencyProfile::class, 'user_id');
     }
 
     public function reportedDisputes()

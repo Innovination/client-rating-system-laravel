@@ -55,6 +55,16 @@ class LoginController extends Controller
             ]);
         }
 
+        if (! $user->verification_status && ! $isAdminUser) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account is not yet verified. Please wait for admin approval.',
+            ]);
+        }
+
         return $isAdminUser
             ? redirect()->route('admin.home')
             : redirect()->route('agency.home');
