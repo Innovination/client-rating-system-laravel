@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Agency;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agency\UpdateAgencyProfileRequest;
 use App\Models\AgencyProfile;
+use App\Models\Country;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -23,7 +24,9 @@ class ProfileController extends Controller
         $profile = $this->getProfile();
         $this->authorize('update', $profile);
 
-        return view('agency.profile.edit', compact('profile'));
+        $countries = Country::orderBy('name')->pluck('name', 'id');
+
+        return view('agency.profile.edit', compact('profile', 'countries'));
     }
 
     public function update(UpdateAgencyProfileRequest $request): RedirectResponse

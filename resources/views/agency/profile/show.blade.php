@@ -25,6 +25,20 @@
                     <div>{{ auth()->user()->email }}</div>
                 </div>
                 <div class="col-md-6 mb-3">
+                    <div class="text-muted small">Alternate Number</div>
+                    <div>{{ $profile->alternate_phone ?: '-' }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="text-muted small">WhatsApp Number</div>
+                    <div>
+                        @if($profile->whatsapp_number)
+                            <a href="https://wa.me/{{ preg_replace('/\D/', '', $profile->whatsapp_number) }}" target="_blank" rel="noopener">{{ $profile->whatsapp_number }}</a>
+                        @else
+                            -
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
                     <div class="text-muted small">Website</div>
                     <div>
                         @if($profile->website)
@@ -35,10 +49,22 @@
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <div class="text-muted small">Location</div>
-                    <div>{{ trim(($profile->city ? $profile->city . ', ' : '') . ($profile->country ?? ''), ', ') ?: '-' }}</div>
+                    <div class="text-muted small">Country</div>
+                    <div>{{ $profile->country?->name ?? '-' }}</div>
                 </div>
-                <div class="col-12 mb-3">
+                <div class="col-md-6 mb-3">
+                    <div class="text-muted small">State</div>
+                    <div>{{ $profile->state?->name ?? '-' }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="text-muted small">City</div>
+                    <div>{{ $profile->cityRelation?->name ?? '-' }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="text-muted small">Pin / Zip Code</div>
+                    <div>{{ $profile->pin_code ?: '-' }}</div>
+                </div>
+                <div class="col-md-6 mb-3">
                     <div class="text-muted small">Address</div>
                     <div>{{ $profile->address ?: '-' }}</div>
                 </div>

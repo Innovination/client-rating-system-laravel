@@ -19,6 +19,7 @@ use App\Http\Controllers\Agency\DisputeController;
 use App\Http\Controllers\Agency\FeedbackController;
 use App\Http\Controllers\Agency\HomeController as AgencyHomeController;
 use App\Http\Controllers\Agency\NotificationController as AgencyNotificationController;
+use App\Http\Controllers\Agency\LocationController;
 use App\Http\Controllers\Agency\ProfileController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\ClientDirectoryController;
@@ -125,6 +126,9 @@ Route::prefix('agency')->name('agency.')->middleware(['auth', 'active'])->group(
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('location/states', [LocationController::class, 'states'])->name('location.states');
+    Route::get('location/cities', [LocationController::class, 'cities'])->name('location.cities');
 
     Route::get('clients', [AgencyClientController::class, 'index'])->middleware('throttle:60,1')->name('clients.index');
     Route::get('clients/create', [AgencyClientController::class, 'create'])->name('clients.create');

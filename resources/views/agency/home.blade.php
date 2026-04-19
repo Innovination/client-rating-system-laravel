@@ -34,9 +34,18 @@
                     </div>
 
                     @if(! $stats['is_verified'])
-                        <div class="alert alert-warning mb-0">
-                            Verify your email to submit disputes and client ratings.
+                        <div class="alert alert-warning mb-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <span>Verify your email to submit disputes and client ratings.</span>
+                            <form method="POST" action="{{ route('verification.resend') }}" class="m-0">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-warning">Resend Verification Email</button>
+                            </form>
                         </div>
+                        @if(session('resent'))
+                            <div class="alert alert-success mt-2 mb-0">
+                                A fresh verification link has been sent to your email address.
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>

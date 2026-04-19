@@ -9,17 +9,17 @@
 
     <ul class="c-sidebar-nav">
 
+        {{-- Dashboard --}}
         <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.home') }}" class="c-sidebar-nav-link">
-                <i class="c-sidebar-nav-icon fas fa-fw fa-tachometer-alt">
-
-                </i>
+            <a href="{{ route('admin.home') }}" class="c-sidebar-nav-link {{ request()->is('admin') ? 'c-active' : '' }}">
+                <i class="c-sidebar-nav-icon fas fa-fw fa-tachometer-alt"></i>
                 {{ trans('global.dashboard') }}
             </a>
         </li>
 
-                @can('user_management_access')
-            <li class="c-sidebar-nav-dropdown {{ request()->is('admin/permissions*') || request()->is('admin/roles*') || request()->is('admin/users*') ? 'c-show' : '' }}">
+        {{-- User Management --}}
+        @can('user_management_access')
+            <li class="c-sidebar-nav-dropdown {{ request()->is('admin/permissions*', 'admin/roles*', 'admin/users*') ? 'c-show' : '' }}">
                 <a class="c-sidebar-nav-dropdown-toggle" href="#">
                     <i class="fa-fw fas fa-users c-sidebar-nav-icon"></i>
                     User Management
@@ -53,45 +53,59 @@
             </li>
         @endcan
 
+        {{-- Moderation Queue --}}
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.moderation.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/moderation*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-shield-alt c-sidebar-nav-icon"></i>
+                Moderation Queue
+            </a>
+        </li>
 
+        {{-- Dispute Categories --}}
+        <li class="c-sidebar-nav-item">
+            <a href="{{ route('admin.dispute-categories.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/dispute-categories*') ? 'c-active' : '' }}">
+                <i class="fa-fw fas fa-tags c-sidebar-nav-icon"></i>
+                Dispute Categories
+            </a>
+        </li>
+
+        {{-- Details: City / State / Country --}}
         @can('detail_access')
-            <li
-                class="c-sidebar-nav-dropdown {{ request()->is('admin/cities*', 'admin/states*', 'admin/countries*') ? 'c-show' : '' }}">
+            <li class="c-sidebar-nav-dropdown {{ request()->is('admin/cities*', 'admin/states*', 'admin/countries*') ? 'c-show' : '' }}">
                 <a class="c-sidebar-nav-dropdown-toggle" href="#">
                     <i class="c-sidebar-nav-icon fas fa-map"></i>
                     {{ trans('cruds.detail.title') }}
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
-                    @can('city_access')
+                    @can('country_access')
                         <li class="c-sidebar-nav-item">
-                            <a href="{{ route('admin.cities.index') }}"
-                                class="c-sidebar-nav-link {{ request()->is('admin/cities*') ? 'c-active' : '' }}">
-                                <i class="c-sidebar-nav-icon fas fa-map-marker-alt"></i>
-                                {{ trans('cruds.city.title') }}
+                            <a href="{{ route('admin.countries.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/countries*') ? 'c-active' : '' }}">
+                                <i class="c-sidebar-nav-icon fas fa-flag"></i>
+                                {{ trans('cruds.country.title') }}
                             </a>
                         </li>
                     @endcan
                     @can('state_access')
                         <li class="c-sidebar-nav-item">
-                            <a href="{{ route('admin.states.index') }}"
-                                class="c-sidebar-nav-link {{ request()->is('admin/states*') ? 'c-active' : '' }}">
+                            <a href="{{ route('admin.states.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/states*') ? 'c-active' : '' }}">
                                 <i class="c-sidebar-nav-icon fas fa-map-signs"></i>
                                 {{ trans('cruds.state.title') }}
                             </a>
                         </li>
                     @endcan
-                    @can('country_access')
+                    @can('city_access')
                         <li class="c-sidebar-nav-item">
-                            <a href="{{ route('admin.countries.index') }}"
-                                class="c-sidebar-nav-link {{ request()->is('admin/countries*') ? 'c-active' : '' }}">
-                                <i class="c-sidebar-nav-icon fas fa-flag"></i>
-                                {{ trans('cruds.country.title') }}
+                            <a href="{{ route('admin.cities.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/cities*') ? 'c-active' : '' }}">
+                                <i class="c-sidebar-nav-icon fas fa-map-marker-alt"></i>
+                                {{ trans('cruds.city.title') }}
                             </a>
                         </li>
                     @endcan
                 </ul>
             </li>
         @endcan
+
+        {{-- Audit Logs --}}
         @can('audit_log_access')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('admin.audit-logs.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/audit-logs*') ? 'c-active' : '' }}">
@@ -101,20 +115,7 @@
             </li>
         @endcan
 
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.moderation.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/moderation*') ? 'c-active' : '' }}">
-                <i class="fa-fw fas fa-shield-alt c-sidebar-nav-icon"></i>
-                Moderation Queue
-            </a>
-        </li>
-
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.dispute-categories.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/dispute-categories*') ? 'c-active' : '' }}">
-                <i class="fa-fw fas fa-tags c-sidebar-nav-icon"></i>
-                Dispute Categories
-            </a>
-        </li>
-
+        {{-- Settings --}}
         @can('setting_access')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('admin.settings.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/settings*') ? 'c-active' : '' }}">
@@ -124,20 +125,7 @@
             </li>
         @endcan
 
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.moderation.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/moderation*') ? 'c-active' : '' }}">
-                <i class="fa-fw fas fa-shield-alt c-sidebar-nav-icon"></i>
-                Moderation
-            </a>
-        </li>
-
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.dispute-categories.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/dispute-categories*') ? 'c-active' : '' }}">
-                <i class="fa-fw fas fa-tags c-sidebar-nav-icon"></i>
-                Dispute Categories
-            </a>
-        </li>
-
+        {{-- Change Password --}}
         @can('profile_password_edit')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route('profile.password.edit') }}" class="c-sidebar-nav-link {{ request()->is('profile/password*') ? 'c-active' : '' }}">
@@ -146,21 +134,23 @@
                 </a>
             </li>
         @endcan
+
+        {{-- Notifications --}}
         <li class="c-sidebar-nav-item">
             <a href="{{ route('admin.notifications.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/notifications*') ? 'c-active' : '' }}">
                 <i class="fa-fw fas fa-bell c-sidebar-nav-icon"></i>
                 Notifications
             </a>
         </li>
-        <li class="c-sidebar-nav-item">
-            <a href="#" class="c-sidebar-nav-link"
-                onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
-                <i class="c-sidebar-nav-icon fas fa-fw fa-sign-out-alt">
 
-                </i>
+        {{-- Logout --}}
+        <li class="c-sidebar-nav-item">
+            <a href="#" class="c-sidebar-nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">
+                <i class="c-sidebar-nav-icon fas fa-fw fa-sign-out-alt"></i>
                 {{ trans('global.logout') }}
             </a>
         </li>
+
     </ul>
 
 </div>
