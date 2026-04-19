@@ -3,18 +3,25 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateUserStatusRequest;
 use App\Http\Requests\MassDestroyUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\AgencyApprovedNotification;
+use App\Services\ModerationService;
 use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends Controller
 {
+    public function __construct(
+        protected ModerationService $moderationService
+    ) {
+    }
+
     public function index(Request $request)
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
@@ -36,6 +43,10 @@ class UsersController extends Controller
             $query->where('user_type', $request->input('user_type'));
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
         $allowedSorts = ['id', 'name', 'email', 'mobile'];
         $sortBy = $request->input('sort_by', 'id');
         if (!in_array($sortBy, $allowedSorts, true)) {
@@ -55,7 +66,9 @@ class UsersController extends Controller
             ->orderBy('user_type')
             ->pluck('user_type');
 
-        return view('admin.users.index', compact('users', 'userTypes'));
+        $userStatuses = [User::STATUS_ACTIVE, User::STATUS_SUSPENDED];
+
+        return view('admin.users.index', compact('users', 'userTypes', 'userStatuses'));
     }
 
     public function create()
@@ -69,7 +82,12 @@ class UsersController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        $user = User::create($request->validated());
+        $data = $request->validated();
+        $data['role'] = $data['role'] ?? User::ROLE_AGENCY;
+        $data['status'] = $data['status'] ?? User::STATUS_ACTIVE;
+        $data['user_type'] = $data['user_type'] ?? $data['role'];
+
+        $user = User::create($data);
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
@@ -88,7 +106,12 @@ class UsersController extends Controller
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->all());
+        $data = $request->validated();
+        if (array_key_exists('role', $data) && ! array_key_exists('user_type', $data)) {
+            $data['user_type'] = $data['role'];
+        }
+
+        $user->update($data);
         $user->roles()->sync($request->input('roles', []));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
@@ -140,21 +163,33 @@ class UsersController extends Controller
         return back()->with('success', 'Agency profile approved successfully.');
     }
 
-    public function suspend(User $user)
+    public function suspend(UpdateUserStatusRequest $request, User $user)
     {
         abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $user->update(['status' => 'suspended']);
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['status' => 'You cannot suspend your own account.']);
+        }
 
-        return back()->with('success', 'User suspended successfully.');
+        $this->moderationService->suspendUser(
+            admin: $request->user(),
+            target: $user,
+            reason: $request->validated('reason')
+        );
+
+        return back()->with('message', 'User suspended successfully.');
     }
 
-    public function unsuspend(User $user)
+    public function unsuspend(UpdateUserStatusRequest $request, User $user)
     {
         abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $user->update(['status' => 'active']);
+        $this->moderationService->unsuspendUser(
+            admin: $request->user(),
+            target: $user,
+            reason: $request->validated('reason')
+        );
 
-        return back()->with('success', 'User unsuspended successfully.');
+        return back()->with('message', 'User reactivated successfully.');
     }
 }

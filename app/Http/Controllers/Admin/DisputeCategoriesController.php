@@ -3,56 +3,60 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreDisputeCategoryRequest;
+use App\Http\Requests\Admin\UpdateDisputeCategoryRequest;
 use App\Models\DisputeCategory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
 
 class DisputeCategoriesController extends Controller
 {
     public function index(): View
     {
-        $categories = DisputeCategory::query()->orderBy('name')->paginate(25);
+        $categories = DisputeCategory::query()
+            ->orderBy('name')
+            ->paginate(20);
 
         return view('admin.disputeCategories.index', compact('categories'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function create(): View
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        return view('admin.disputeCategories.create');
+    }
 
+    public function store(StoreDisputeCategoryRequest $request): RedirectResponse
+    {
         DisputeCategory::create([
-            'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']) . '-' . Str::lower(Str::random(4)),
-            'is_active' => (bool) ($validated['is_active'] ?? true),
+            'name' => $request->validated('name'),
+            'slug' => $request->validated('slug'),
+            'is_active' => (bool) $request->boolean('is_active', true),
         ]);
 
-        return back()->with('message', 'Dispute category created successfully.');
+        return redirect()->route('admin.dispute-categories.index')->with('message', 'Dispute category created successfully.');
     }
 
-    public function update(Request $request, DisputeCategory $category): RedirectResponse
+    public function edit(DisputeCategory $dispute_category): View
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
-
-        $category->update([
-            'name' => $validated['name'],
-            'is_active' => (bool) ($validated['is_active'] ?? false),
-        ]);
-
-        return back()->with('message', 'Dispute category updated successfully.');
+        return view('admin.disputeCategories.edit', ['category' => $dispute_category]);
     }
 
-    public function destroy(DisputeCategory $category): RedirectResponse
+    public function update(UpdateDisputeCategoryRequest $request, DisputeCategory $dispute_category): RedirectResponse
     {
-        $category->delete();
+        $dispute_category->update([
+            'name' => $request->validated('name'),
+            'slug' => $request->validated('slug'),
+            'is_active' => (bool) $request->boolean('is_active', false),
+        ]);
+
+        return redirect()->route('admin.dispute-categories.index')->with('message', 'Dispute category updated successfully.');
+    }
+
+    public function destroy(DisputeCategory $dispute_category): RedirectResponse
+    {
+        $dispute_category->delete();
 
         return back()->with('message', 'Dispute category deleted successfully.');
     }
 }
+

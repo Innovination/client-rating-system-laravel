@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,20 +45,24 @@ class LoginController extends Controller
     {
         $isAdminUser = $user->is_admin || $user->user_type === 'admin';
 
-        if (($user->status ?? 'active') === 'suspended') {
+        if ($user->status === User::STATUS_SUSPENDED) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('message', 'Your account is suspended. Please contact the administrator.');
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account is suspended. Please contact support.',
+            ]);
         }
 
-        if (!$user->verification_status && !$isAdminUser) {
+        if (! $user->verification_status && ! $isAdminUser) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('login')->with('message', trans('global.not_approved_p'));
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account is not yet verified. Please wait for admin approval.',
+            ]);
         }
 
         return $isAdminUser

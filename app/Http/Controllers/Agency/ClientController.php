@@ -3,33 +3,31 @@
 namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Agency\StoreAgencyClientRequest;
+use App\Http\Requests\Agency\StoreClientRequest;
 use App\Models\Client;
 use App\Models\ClientFeedback;
 use App\Models\Dispute;
 use App\Models\DisputeCategory;
+use App\Services\ClientReputationService;
+use App\Services\ClientSearchService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class ClientController extends Controller
 {
+    public function __construct(
+        protected ClientSearchService $clientSearchService,
+        protected ClientReputationService $clientReputationService
+    ) {
+    }
+
     public function index(Request $request): View
     {
-        $query = Client::query()
-            ->select(['id', 'name', 'website', 'location', 'created_by', 'created_at'])
-            ->with('createdBy:id,name,email')
-            ->withCount('feedback');
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        $clients = $query
-            ->orderByDesc('created_at')
-            ->paginate(15)
-            ->appends($request->query());
+        $clients = $this->clientSearchService->search(
+            term: $request->string('q')->toString(),
+            perPage: 15
+        );
 
         return view('agency.clients.index', compact('clients'));
     }
@@ -39,38 +37,50 @@ class ClientController extends Controller
         return view('agency.clients.create');
     }
 
-    public function store(StoreAgencyClientRequest $request): RedirectResponse
+    public function store(StoreClientRequest $request): RedirectResponse
     {
         $client = Client::create([
-            ...$request->validated(),
-            'created_by' => auth()->id(),
+            'name' => $request->validated('name'),
+            'website' => $request->validated('website'),
+            'location' => $request->validated('location'),
+            'notes' => $request->validated('notes'),
+            'created_by' => $request->user()->id,
         ]);
 
-        return redirect()->route('agency.clients.show', $client)->with('message', 'Client added successfully.');
+        return redirect()
+            ->route('agency.clients.show', $client)
+            ->with('message', 'Client created successfully.');
     }
 
     public function show(Client $client): View
     {
-        $client->load(['createdBy:id,name,email']);
+        $summary = $this->clientReputationService->getSummary($client);
 
-        $disputes = $client->disputes()
+        $disputes = Dispute::query()
+            ->where('client_id', $client->id)
             ->where('status', Dispute::STATUS_VISIBLE)
-            ->with(['agency:id,name,email,mobile', 'category:id,name'])
+            ->with(['agency.agencyProfile', 'category'])
             ->latest()
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'disputes_page');
 
-        $feedback = $client->feedback()
+        $feedbackItems = ClientFeedback::query()
+            ->where('client_id', $client->id)
             ->where('status', ClientFeedback::STATUS_VISIBLE)
-            ->with('agency:id,name,email,mobile')
+            ->with(['agency.agencyProfile'])
             ->latest()
-            ->take(10)
+            ->paginate(10, ['*'], 'feedback_page');
+
+        $myFeedback = ClientFeedback::query()
+            ->where('client_id', $client->id)
+            ->where('agency_user_id', auth()->id())
+            ->first();
+
+        $categories = DisputeCategory::query()
+            ->where('is_active', true)
+            ->orderBy('name')
             ->get();
 
-        $avgRating = round((float) $client->feedback()->where('status', ClientFeedback::STATUS_VISIBLE)->avg('rating'), 1);
-        $myFeedback = $client->feedback()->where('agency_user_id', auth()->id())->first();
-        $categories = DisputeCategory::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']);
-
-        return view('agency.clients.show', compact('client', 'disputes', 'feedback', 'avgRating', 'myFeedback', 'categories'));
+        return view('agency.clients.show', compact('client', 'summary', 'disputes', 'feedbackItems', 'myFeedback', 'categories'));
     }
 }
+

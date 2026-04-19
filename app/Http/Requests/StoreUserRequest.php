@@ -42,6 +42,14 @@ class StoreUserRequest extends FormRequest
                 'string',
                 'nullable',
             ],
+            'role' => [
+                'string',
+                'nullable',
+            ],
+            'status' => [
+                'string',
+                'nullable',
+            ],
         ];
     }
 }

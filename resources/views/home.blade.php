@@ -1,15 +1,57 @@
 @extends('layouts.admin')
+
 @section('content')
     <div class="content">
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header">
-                        Dashboard
+                        Admin Dashboard
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Registered Agencies</div>
+                                    <div class="h3 mb-0">{{ $stats['agencies'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Suspended Agencies</div>
+                                    <div class="h3 mb-0">{{ $stats['suspended_agencies'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Visible Disputes</div>
+                                    <div class="h3 mb-0">{{ $stats['visible_disputes'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Hidden Disputes</div>
+                                    <div class="h3 mb-0">{{ $stats['hidden_disputes'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Visible Feedback</div>
+                                    <div class="h3 mb-0">{{ $stats['visible_feedback'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">Hidden Feedback</div>
+                                    <div class="h3 mb-0">{{ $stats['hidden_feedback'] }}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
         @can('developer_options')
             <div class="row mt-3">
                 <div class="col-lg-12">
@@ -38,7 +80,3 @@
     </div>
 @endsection
 
-@section('scripts')
-    @parent
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-@endsection

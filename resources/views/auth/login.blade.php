@@ -212,7 +212,7 @@
 
         <div class="auth-form-wrap">
             <h3 class="auth-title">Login</h3>
-            <p class="auth-sub">Use your approved agency account to continue.</p>
+            <p class="auth-sub">Use your agency account to continue.</p>
 
             @if(session('message'))
                 <div class="alert-soft">{{ session('message') }}</div>

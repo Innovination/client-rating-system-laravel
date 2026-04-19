@@ -4,27 +4,24 @@ namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
-use Illuminate\View\View;
+use App\Models\ClientFeedback;
+use App\Models\Dispute;
+use Illuminate\Contracts\View\View;
 
 class HomeController extends Controller
 {
     public function index(): View
     {
-        $agency = auth()->user();
+        $user = auth()->user();
 
         $stats = [
-            'profile_completed' => (bool) $agency->agencyProfile,
-            'clients_added' => Client::query()->where('created_by', $agency->id)->count(),
-            'notifications_unread' => $agency->unreadNotifications()->count(),
+            'clients_added' => Client::query()->where('created_by', $user->id)->count(),
+            'disputes_submitted' => Dispute::query()->where('agency_user_id', $user->id)->count(),
+            'feedback_submitted' => ClientFeedback::query()->where('agency_user_id', $user->id)->count(),
+            'is_verified' => ! is_null($user->email_verified_at),
+            'status' => $user->status,
         ];
 
-        $recentClients = Client::query()
-            ->where('created_by', $agency->id)
-            ->select(['id', 'name', 'location', 'created_at'])
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
-
-        return view('agency.home', compact('stats', 'recentClients'));
+        return view('agency.home', compact('stats'));
     }
 }

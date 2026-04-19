@@ -29,6 +29,14 @@
                             <th>{{ trans('cruds.user.fields.email') }}</th>
                             <td>{{ $user->email }}</td>
                         </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ ucfirst($user->status ?? 'active') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Role</th>
+                            <td>{{ $user->role ?? ($user->is_admin ? 'admin' : 'agency') }}</td>
+                        </tr>
                     </tbody>
                 </table>
                 <a class="btn btn-default" href="{{ route('admin.users.index') }}">

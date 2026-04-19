@@ -1,45 +1,63 @@
-@extends('layouts.public')
+@extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <h2 class="mb-3">Client Directory</h2>
+    <div class="row justify-content-center mt-4">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Client Directory</span>
+                    @auth
+                        <a href="{{ route('agency.clients.index') }}" class="btn btn-sm btn-primary">Agency Workspace</a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-primary">Agency Login</a>
+                    @endauth
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('clients.index') }}" class="mb-3">
+                        <div class="form-row">
+                            <div class="col-md-8">
+                                <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Search clients by name">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                                <a class="btn btn-light" href="{{ route('clients.index') }}">Clear</a>
+                            </div>
+                        </div>
+                    </form>
 
-    <form method="GET" action="{{ route('clients.index') }}" class="mb-3">
-        <div class="input-group" style="max-width: 460px;">
-            <input type="text" name="search" class="form-control" placeholder="Search client by name" value="{{ request('search') }}">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Avg. Rating</th>
+                                    <th>Feedback</th>
+                                    <th>Disputes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($clients as $client)
+                                    <tr>
+                                        <td><a href="{{ route('clients.show', $client) }}">{{ $client->name }}</a></td>
+                                        <td>{{ $client->location ?: '-' }}</td>
+                                        <td>{{ $client->visible_feedback_avg ? number_format($client->visible_feedback_avg, 1) : 'N/A' }}</td>
+                                        <td>{{ $client->visible_feedback_count }}</td>
+                                        <td>{{ $client->visible_disputes_count }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No clients found.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{ $clients->links() }}
+                </div>
             </div>
         </div>
-    </form>
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Client</th>
-                    <th>Location</th>
-                    <th>Website</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($clients as $client)
-                    <tr>
-                        <td>{{ $client->name }}</td>
-                        <td>{{ $client->location ?: '-' }}</td>
-                        <td>{{ $client->website ?: '-' }}</td>
-                        <td><a href="{{ route('clients.show', $client) }}" class="btn btn-sm btn-primary">View</a></td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4">No clients found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
     </div>
-
-    {{ $clients->links() }}
-</div>
 @endsection
+

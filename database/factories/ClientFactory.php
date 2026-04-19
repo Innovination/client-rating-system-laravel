@@ -16,6 +16,7 @@ class ClientFactory extends Factory
             'name' => fake()->company(),
             'website' => fake()->boolean(70) ? fake()->url() : null,
             'location' => fake()->city() . ', ' . fake()->country(),
+            'notes' => fake()->boolean(50) ? fake()->sentence() : null,
             'created_by' => User::factory(),
         ];
     }

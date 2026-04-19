@@ -17,7 +17,11 @@ class UsersTableSeeder extends Seeder
                 'password' => bcrypt('password'),
                 'remember_token' => null,
                 'mobile' => '',
-                'user_type' => '',
+                'user_type' => 'admin',
+                'role' => 'admin',
+                'status' => 'active',
+                'verification_status' => true,
+                'email_verified_at' => now(),
                 // 'otp'            => '',
             ],
         ];

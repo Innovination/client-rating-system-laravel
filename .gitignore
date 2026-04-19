@@ -22,3 +22,5 @@ yarn-error.log
 Thumbs.db
 .phpunit.result.cache
 .phpunit.cache
+.codex/
+.claude/
