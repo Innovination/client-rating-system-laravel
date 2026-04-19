@@ -167,11 +167,11 @@
             </table>
         </div>
 
-        {{ $states->links() }}
-
         @can('state_delete')
             </form>
         @endcan
+
+        {{ $states->links() }}
     </div>
 </div>
 @endsection

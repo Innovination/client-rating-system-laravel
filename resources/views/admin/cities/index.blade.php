@@ -167,11 +167,11 @@
                 </table>
             </div>
 
-            {{ $cities->links() }}
-
             @can('city_delete')
                 </form>
             @endcan
+
+            {{ $cities->links() }}
         </div>
     </div>
 @endsection

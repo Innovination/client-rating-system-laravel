@@ -15,6 +15,14 @@ class DatabaseSeeder extends Seeder
             UsersTableSeeder::class,
             RoleUserTableSeeder::class,
             CountriesTableSeeder::class,
+            IndiaStatesTableSeeder::class,
+            IndiaCitiesTableSeeder::class,
+            UsaStatesTableSeeder::class,
+            UsaCitiesTableSeeder::class,
+            CanadaStatesTableSeeder::class,
+            CanadaCitiesTableSeeder::class,
+            AustraliaStatesTableSeeder::class,
+            AustraliaCitiesTableSeeder::class,
         ]);
     }
 }

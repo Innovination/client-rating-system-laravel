@@ -26,12 +26,6 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="notes">Notes (Optional)</label>
-                    <textarea id="notes" name="notes" rows="4" class="form-control @error('notes') is-invalid @enderror">{{ old('notes') }}</textarea>
-                    @error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
-
                 <button class="btn btn-primary" type="submit">Save Client</button>
                 <a href="{{ route('agency.clients.index') }}" class="btn btn-light">Cancel</a>
             </form>
