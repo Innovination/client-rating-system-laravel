@@ -135,14 +135,6 @@
             </li>
         @endcan
 
-        {{-- Notifications --}}
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route('admin.notifications.index') }}" class="c-sidebar-nav-link {{ request()->is('admin/notifications*') ? 'c-active' : '' }}">
-                <i class="fa-fw fas fa-bell c-sidebar-nav-icon"></i>
-                Notifications
-            </a>
-        </li>
-
         {{-- Logout --}}
         <li class="c-sidebar-nav-item">
             <a href="#" class="c-sidebar-nav-link" onclick="event.preventDefault(); document.getElementById('logoutform').submit();">

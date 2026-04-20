@@ -10,11 +10,33 @@
             <div class="row">
                 <div class="col-md-3 mb-2">
                     <div class="text-muted small">Website</div>
-                    <div>{{ $client->website ?: '-' }}</div>
+                    <div>
+                        @if($client->website)
+                            <a href="{{ $client->website }}" target="_blank" rel="noopener">{{ $client->website }}</a>
+                        @else
+                            -
+                        @endif
+                    </div>
                 </div>
                 <div class="col-md-3 mb-2">
-                    <div class="text-muted small">Location</div>
-                    <div>{{ $client->location ?: '-' }}</div>
+                    <div class="text-muted small">Phone</div>
+                    <div>{{ $client->phone ?: '-' }}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="text-muted small">Country</div>
+                    <div>{{ $client->country?->name ?? '-' }}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="text-muted small">State</div>
+                    <div>{{ $client->state?->name ?? '-' }}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="text-muted small">City</div>
+                    <div>{{ $client->cityRelation?->name ?? '-' }}</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="text-muted small">Address</div>
+                    <div>{{ $client->address ?: '-' }}</div>
                 </div>
                 <div class="col-md-2 mb-2">
                     <div class="text-muted small">Avg. Rating</div>

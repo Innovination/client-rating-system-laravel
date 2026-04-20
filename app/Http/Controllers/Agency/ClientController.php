@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agency\StoreClientRequest;
+use App\Models\City;
 use App\Models\Client;
 use App\Models\ClientFeedback;
+use App\Models\Country;
 use App\Models\Dispute;
 use App\Models\DisputeCategory;
 use App\Services\ClientReputationService;
@@ -34,16 +36,21 @@ class ClientController extends Controller
 
     public function create(): View
     {
-        return view('agency.clients.create');
+        $countries = Country::orderBy('name')->pluck('name', 'id');
+
+        return view('agency.clients.create', compact('countries'));
     }
 
     public function store(StoreClientRequest $request): RedirectResponse
     {
         $client = Client::create([
-            'name' => $request->validated('name'),
-            'website' => $request->validated('website'),
-            'location' => $request->validated('location'),
-            'notes' => $request->validated('notes'),
+            'name'       => $request->validated('name'),
+            'website'    => $request->validated('website'),
+            'phone'      => $request->validated('phone'),
+            'address'    => $request->validated('address'),
+            'country_id' => $request->validated('country_id'),
+            'state_id'   => $request->validated('state_id'),
+            'city_id'    => $request->validated('city_id'),
             'created_by' => $request->user()->id,
         ]);
 
